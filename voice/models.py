@@ -4,8 +4,8 @@ from django.urls import reverse
 
 
 class AudioFile(models.Model):
-    mfccs = models.JSONField()
-    path = models.CharField(max_length=255)
+    path = models.TextField()
+    faiss_index = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.path

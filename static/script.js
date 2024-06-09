@@ -5,6 +5,7 @@ $(document).ready(function () {
     const fileSelectorInput = $('.file-selector-input');
     const container = $('.container');
     const showFileCol = $('.show-file .row');
+    const submitBtn = $('.submit-btn');
 
     // Kích hoạt lựa chọn file khi nhấn vào button
     fileSelector.on('click', function (e) {
@@ -25,23 +26,25 @@ $(document).ready(function () {
         handleFiles(e.originalEvent.dataTransfer.files);
     });
 
-    // Xử lý danh sách các file được chọn hoặc thả vào
     function handleFiles(files) {
-        Array.from(files).forEach(file => {
-            if (typeValidation(file)) {
-                const li = createListItem(file);
-                listContainer.prepend(li); // Thêm vào đầu danh sách
-                simulateUpload(li, file); // Mô phỏng quá trình tải lên
-            } else {
-                alert('Chỉ chấp nhận tệp WAV và tệp MP3 dưới 2MB.');
-            }
-        });
+        if (listContainer.children().length > 0) {
+            alert('Chỉ có thể tải lên một tệp duy nhất.');
+            return;
+        }
+
+        const file = files[0];
+        if (typeValidation(file)) {
+            const li = createListItem(file);
+            listContainer.prepend(li); // Thêm vào đầu danh sách
+            simulateUpload(li, file); // Mô phỏng quá trình tải lên
+        } else {
+            alert('Chỉ chấp nhận tệp WAV và tệp MP3 dưới 2MB.');
+        }
 
         // Kiểm tra xem có file nào không
         checkFiles();
     }
 
-    // Tạo một mục li trong danh sách dựa trên file
     function createListItem(file) {
         const iconName = iconSelector(file.type);
         const li = $('<li>').addClass('in-prog').html(`
@@ -67,7 +70,8 @@ $(document).ready(function () {
         li.find('.cancel-upload').on('click', function () {
             li.remove();
             stopPlayingAudio(file);
-            $(`#audio-container-${file.name.replace(/\W/g, '_')}`).remove();
+            $('.show-file .col-lg-12').remove();
+            fileSelectorInput.val('');
             checkFiles();
         });
 
@@ -135,13 +139,16 @@ $(document).ready(function () {
     }
 
 
-    // Kiểm tra xem có file nào không và điều chỉnh giao diện
     function checkFiles() {
         if (listContainer.children().length > 0) {
+            if(submitBtn.hasClass('d-none'))
+                submitBtn.removeClass('d-none');
             container.removeClass('compact').addClass('full');
             showFileCol.parent().removeClass('d-none').addClass('col-lg-6');
             $('.form-file').removeClass('col-lg-12').addClass('col-lg-6');
         } else {
+           if(!submitBtn.hasClass('d-none'))
+                submitBtn.addClass('d-none');
             container.removeClass('full').addClass('compact');
             showFileCol.parent().addClass('d-none').removeClass('col-lg-6');
             $('.form-file').removeClass('col-lg-6').addClass('col-lg-12');
